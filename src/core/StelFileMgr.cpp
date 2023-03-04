@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QProcessEnvironment>
 #include <QtGlobal>
+#include <QtCore/private/qandroidextras_p.h>
 
 #include <cstdio>
 
@@ -43,8 +44,20 @@
 // Initialize static members.
 QStringList StelFileMgr::fileLocations;
 QString StelFileMgr::userDir;
+QString StelFileMgr::cuserDir;
 QString StelFileMgr::screenshotDir;
 QString StelFileMgr::installDir;
+
+void requestPermission(QString perm)
+{
+    auto r = QtAndroidPrivate::checkPermission(perm).result();
+    while (r == QtAndroidPrivate::Denied)
+    {
+        r = QtAndroidPrivate::requestPermission(perm).result();
+    }
+    return;
+}
+
 
 void StelFileMgr::init()
 {
@@ -60,8 +73,14 @@ void StelFileMgr::init()
 #elif defined(Q_OS_HAIKU)
 	// Use system settings dir
 	userDir = QDir::homePath() + "/config/settings/Stellarium";
+#elif defined(Q_OS_ANDROID)
+    requestPermission("android.permission.READ_EXTERNAL_STORAGE");
+    requestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+    userDir = QDir::homePath() + "/.stellarium";
+    // Custom user dir where the user can write to
+    cuserDir = QString::fromLocal8Bit(qgetenv("EXTERNAL_STORAGE")) + "/stellarium";
 #else
-	userDir = QDir::homePath() + "/.stellarium";
+    userDir = QDir::homePath() + "/.stellarium";
 #endif
 
 #if QT_VERSION >= 0x050A00
@@ -92,6 +111,24 @@ void StelFileMgr::init()
 
 	// OK, now we have the userDir set, add it to the search path
 	fileLocations.append(userDir);
+
+    // Add custom user config dir for android users
+#ifdef Q_OS_ANDROID
+    if (!QFile(cuserDir).exists())
+    {
+        qWarning() << "Custom user config directory does not exist: " << QDir::toNativeSeparators(cuserDir);
+    }
+    try
+    {
+        makeSureDirExistsAndIsWritable(cuserDir);
+    }
+    catch (std::runtime_error &e)
+    {
+        qWarning("Error: cannot create custom user config directory: %s", e.what());
+    }
+    fileLocations.append(cuserDir);
+    qDebug() << "Custom user config directory: " << cuserDir;
+#endif
 	
 	// Determine install data directory location
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -123,6 +160,10 @@ void StelFileMgr::init()
 	#elif defined(Q_OS_WIN)		
 		QFileInfo installLocation(QCoreApplication::applicationDirPath());
 		QFileInfo checkFile(installLocation.filePath() + QDir::separator() + QString(CHECK_FILE));
+    #elif defined(Q_OS_ANDROID)
+        QString appDir = ":";
+        QFileInfo installLocation(appDir);
+        QFileInfo checkFile(appDir + "/" + QString(CHECK_FILE));
 	#else
 		// Linux, BSD, Solaris etc.
 		// We use the value from the config.h filesystem

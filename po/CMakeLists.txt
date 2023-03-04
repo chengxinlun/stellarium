@@ -37,7 +37,7 @@ IF(NOT MSVC)
      ENDIF()
 ENDIF()
 
-FIND_PACKAGE(Qt${QT_VERSION_MAJOR}LinguistTools REQUIRED)
+FIND_PACKAGE(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 GET_TARGET_PROPERTY(lupdate_executable Qt${QT_VERSION_MAJOR}::lupdate IMPORTED_LOCATION)
 IF(EXISTS "${lupdate_executable}")
      MESSAGE(STATUS "Found lupdate: ${lupdate_executable}")

@@ -210,6 +210,8 @@ private:
 	//! Used to store the user data directory
 	static QString userDir;
 
+    static QString cuserDir;
+
 	//! Used to store the screenshot directory
 	static QString screenshotDir;
 

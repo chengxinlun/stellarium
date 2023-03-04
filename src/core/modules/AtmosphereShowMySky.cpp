@@ -796,10 +796,7 @@ void AtmosphereShowMySky::computeColor(StelCore* core, const double JD, const Pl
 		}
 		const auto width=viewport[2], height=viewport[3];
 		if(width!=prevWidth_ || height!=prevHeight_)
-		{
 			resizeRenderTarget(width, height);
-			dynResTimer=0;
-		}
 
 		if(location.altitude != lastUsedAltitude_)
 		{

@@ -391,6 +391,7 @@ int main(int argc, char **argv)
 
 	StelMainView mainWin(confSettings);
 
+#ifndef Q_OS_ANDROID
 	int screen = confSettings->value("video/screen_number", 0).toInt();
 	if (screen < 0 || screen >= qApp->screens().count())
 	{
@@ -420,6 +421,9 @@ int main(int argc, char **argv)
 		const int y = confSettings->value("video/screen_y", 0).toInt();
 		mainWin.move(x + screenGeom.x(), y + screenGeom.y());
 	}
+#else
+    mainWin.setFullScreen(true);
+#endif
 
 	mainWin.show();
 	SplashScreen::finish(&mainWin);

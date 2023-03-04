@@ -2,7 +2,7 @@
 # to generate manual page:
 # pod2man --section=1 -r ${VERSION} --center=" " stellarium.pod stellarium.1
 
-IF(UNIX AND NOT WIN32 AND NOT APPLE)
+IF(UNIX AND NOT WIN32 AND NOT APPLE AND NOT ANDROID)
      ADD_CUSTOM_TARGET(ManPages ALL)
 
      CONFIGURE_FILE(

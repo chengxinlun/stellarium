@@ -32,6 +32,10 @@ GLuint makeDitherPatternTexture(QOpenGLFunctions& gl)
 	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+    gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, std::size(blueNoiseTriangleRemapped), std::size(blueNoiseTriangleRemapped[0]),
+                    0, GL_LUMINANCE, GL_FLOAT, blueNoiseTriangleRemapped);
+
+    /*
 	// OpenGL ES has different defined formats. However, the shader will use the red channel, so this should work:
 	if(QOpenGLContext::currentContext()->isOpenGLES())
 	{
@@ -43,6 +47,7 @@ GLuint makeDitherPatternTexture(QOpenGLFunctions& gl)
 		gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, std::size(blueNoiseTriangleRemapped), std::size(blueNoiseTriangleRemapped[0]),
 						0, GL_RED, GL_FLOAT, blueNoiseTriangleRemapped);
 	}
+    */
 	return tex;
 }
 }

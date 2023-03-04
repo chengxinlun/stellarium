@@ -35,8 +35,11 @@ void StelLogger::init(const QString& logFilePath)
 {
 	logFile.setFileName(logFilePath);
 
+#ifndef Q_OS_ANDROID
+    // the default log file location is not readable by user, thus rendering the logging useless
 	if (logFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text | QIODevice::Unbuffered))
 		qInstallMessageHandler(StelLogger::debugLogHandler);
+#endif
 
 	// write timestamp
 	writeLog(QString("%1").arg(QDateTime::currentDateTime().toString(Qt::ISODate)));

@@ -29,9 +29,11 @@ SET(ENABLE_QT6 1 CACHE BOOL "Whether to try building with Qt6. If Qt6 is not fou
 IF(ENABLE_QT6)
     FIND_PACKAGE(Qt6 COMPONENTS Core QUIET)
 ENDIF()
-if (NOT Qt6_FOUND)
-    FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core)
-ENDIF()
+#if (NOT Qt6_FOUND)
+#    FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core)
+#ENDIF()
+
+#qt_add_executable(StellariumAndroid main.cpp)
 
 # Activate this to error on all things deprecated in 5.15
 #add_compile_definitions("QT_DISABLE_DEPRECATED_BEFORE=0x050F00")
@@ -665,12 +667,12 @@ ENDIF()
 
 # Check if we have a GLES-only build
 # On dynamic builds, this property is also "GL"
-IF(${Qt5Gui_OPENGL_IMPLEMENTATION} MATCHES "GLES")
-     MESSAGE(STATUS "Building an OpenGL ES build (${Qt5Gui_OPENGL_IMPLEMENTATION})")
-     SET(STEL_GLES_LIBS Qt5::Gui_EGL Qt5::Gui_GLESv2)
-ELSE()
-     MESSAGE(STATUS "Building an OpenGL build")
-ENDIF()
+#IF(${Qt5Gui_OPENGL_IMPLEMENTATION} MATCHES "GLES")
+#     MESSAGE(STATUS "Building an OpenGL ES build (${Qt5Gui_OPENGL_IMPLEMENTATION})")
+#     SET(STEL_GLES_LIBS Qt5::Gui_EGL Qt5::Gui_GLESv2)
+#ELSE()
+#     MESSAGE(STATUS "Building an OpenGL build")
+#ENDIF()
 
 # Tell CMake to run moc when necessary:
 SET(CMAKE_AUTOMOC ON)
@@ -1062,4 +1064,7 @@ IF(ENABLE_SHOWMYSKY)
 ENDIF()
 IF(ENABLE_NLS)
      ADD_SUBDIRECTORY( po )
+ENDIF()
+IF(ANDROID)
+    qt_finalize_target(stellarium)
 ENDIF()
