@@ -1,40 +1,14 @@
-# Stellarium
-[![GitHub release](https://img.shields.io/github/release/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
-[![GitHub Release Date](https://img.shields.io/github/release-date/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
-[![Github All Releases](https://img.shields.io/github/downloads/Stellarium/stellarium/total.svg)](https://github.com/Stellarium/stellarium/releases)
-[![Backers and sponsors](https://img.shields.io/opencollective/all/stellarium.svg?style=flat)](https://opencollective.com/stellarium)
-[![CI](https://github.com/Stellarium/stellarium/actions/workflows/ci.yml/badge.svg)](https://github.com/Stellarium/stellarium/actions/workflows/ci.yml)
-[![Build status](https://ci.appveyor.com/api/projects/status/sw8j9l8q95ejkalo?svg=true)](https://ci.appveyor.com/project/alex-w/stellarium)
-[![Coverage Status](https://coveralls.io/repos/github/Stellarium/stellarium/badge.svg)](https://coveralls.io/github/Stellarium/stellarium)
-[![CodeFactor](https://www.codefactor.io/repository/github/stellarium/stellarium/badge)](https://www.codefactor.io/repository/github/stellarium/stellarium)
-[![Code Quality Score](https://api.codiga.io/project/33739/score/svg)](https://app.codiga.io/hub/project/33739/stellarium)
-[![DOI:10.1558/jsa.17822](http://img.shields.io/badge/DOI-10.1558/jsa.17822-blue.svg)](https://doi.org/10.1558/jsa.17822)
+# Stellarium PC Android port
+Trying to port as much as possible of Stellarium PC version to Android. See Stellarium/stellarium for credits of the original code.
 
-Stellarium is a free open source planetarium for your computer. It shows a realistic sky
-in 3D, just like what you see with the naked eye, binoculars or a telescope.
+### Known issues
+Currently very early in progress so there are a lot of issues to work on
 
-If you are new to Stellarium, go to [www.stellarium.org](https://www.stellarium.org) for loads of additional information.
-
-## Installation Instructions & Quick Start
-
-Please refer to the [User Guide, Getting Started section](https://github.com/Stellarium/stellarium/releases/download/v1.2/stellarium_user_guide-1.2-1.pdf).
-
-## Get & build the code
-
-See instructions to [building Stellarium from source code](BUILDING.md).
-
-## Full References and Credits
-
-See the [full credit file](CREDITS.md).
-
-## Contributing to Stellarium
-
-See the [contributing guideline](CONTRIBUTING.md).
-
-## Contributors
-
-This project exists thanks to all the people who contribute! List of contributors [on Github](https://github.com/Stellarium/stellarium/graphs/contributors) (code contributors) and [on Open Collective page](https://opencollective.com/stellarium#contributors) (financial contributors).
-
-## Our backers & sponsors
-
-Thank you to all [our backers and sponsors](BACKERS.md)!  Become a [backer](https://opencollective.com/stellarium#backer) or [sponsor](https://opencollective.com/stellarium#sponsor).
+1. Any functionalities using Internet are broken because of lack of OpenSSL
+2. Android storage permission and lack of such frameworks in Qt
+3. Missing constellations and stars
+4. Missing a bunch of shape files for solar system minor bodies
+5. Calculating of emphemerial is an automatic crash.
+6. showmysky cannot be compiled and has to be disabled
+7. UI does not fit onto even modern high resolution phones
+8. No app icon, and need better AndroidManifest.xml
