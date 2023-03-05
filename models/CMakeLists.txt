@@ -1,6 +1,6 @@
 
 ########### install files ###############
-
+IF(NOT ANDROID)
 # install models
 INSTALL(DIRECTORY ./ DESTINATION ${SDATALOC}/models
 	FILES_MATCHING 
@@ -14,3 +14,4 @@ INSTALL(DIRECTORY blender/ DESTINATION ${SDATALOC}/models/blender
 	FILES_MATCHING 
 	PATTERN "*.blend"
 	PATTERN "CMakeFiles" EXCLUDE )
+ENDIF()

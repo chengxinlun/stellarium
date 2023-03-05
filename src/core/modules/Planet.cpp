@@ -1736,10 +1736,9 @@ void Planet::setRotationElements(const QString name,
 
 void Planet::setSiderealPeriod(const double siderealPeriod)
 {
-    qDebug() << englishName << siderealPeriod << orbitPtr << pType;
-    qDebug() << !qFuzzyCompare(siderealPeriod, 0.) << orbitPtr << (pType!=isObserver) << (englishName=="Sun");
     Q_ASSERT(!qFuzzyCompare(siderealPeriod, 0.) || orbitPtr || pType!=isObserver || englishName=="Sun");
-    //Q_ASSERT(!qFuzzyCompare(siderealPeriod, 0.) || pType==isObserver || englishName=="Sun");
+    // The original code somehow caused all Observers to fail the assertion
+    //Q_ASSERT(!qFuzzyCompare(siderealPeriod, 0.) || (orbitPtr && pType!=isObserver) || englishName=="Sun");
 
 	this->siderealPeriod = siderealPeriod;
 	if (orbitPtr && pType!=isObserver)

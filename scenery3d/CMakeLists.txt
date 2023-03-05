@@ -1,3 +1,4 @@
+IF(NOT ANDROID)
 ADD_SUBDIRECTORY( Sterngarten )
 ADD_SUBDIRECTORY( Testscene )
-
+ENDIF()

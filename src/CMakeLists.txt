@@ -286,7 +286,11 @@ ENDIF()
 SET(stellarium_exe_SRCS main.cpp)
 
 ################# compiles resources files ############
-LIST(APPEND stellarium_RES ${CMAKE_SOURCE_DIR}/data/mainRes.qrc ${CMAKE_SOURCE_DIR}/textures/textures.qrc)
+LIST(APPEND stellarium_RES ${CMAKE_SOURCE_DIR}/data/mainRes.qrc)
+# Android can only find assets that is packaged into the apk
+IF(ANDROID)
+    LIST(APPEND stellarium_RES ${CMAKE_SOURCE_DIR}/androidAssets.qrc)
+ENDIF()
 IF(${QT_VERSION_MAJOR} EQUAL "5")
      QT5_ADD_RESOURCES(stellarium_RES_CXX ${stellarium_RES})
 ELSE()

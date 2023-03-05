@@ -1,3 +1,4 @@
+IF(NOT ANDROID)
 ADD_SUBDIRECTORY( anutan )
 ADD_SUBDIRECTORY( arabic_al-sufi )
 ADD_SUBDIRECTORY( arabic_arabian_peninsula )
@@ -54,4 +55,4 @@ ADD_SUBDIRECTORY( tupi )
 ADD_SUBDIRECTORY( vanuatu_netwar )
 ADD_SUBDIRECTORY( xhosa )
 ADD_SUBDIRECTORY( zulu )
-
+ENDIF()

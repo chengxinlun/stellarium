@@ -1,2 +1,3 @@
+IF(NOT ANDROID)
 ADD_SUBDIRECTORY( default ) 
-
+ENDIF()

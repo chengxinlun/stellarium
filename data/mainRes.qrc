@@ -6,29 +6,4 @@
         <file>shaders/preethamAtmosphere.vert</file>
         <file>shaders/xyYToRGB.glsl</file>
     </qresource>
-    <qresource prefix="/data">
-        <file>DejaVuSans.ttf</file>
-        <file>DejaVuSansMono.ttf</file>
-        <file>NotoSans-Regular.ttf</file>
-        <file>NotoSansMono-Regular.ttf</file>
-        <file>NotoSansSC-Regular.otf</file>
-        <file>base_locations.bin.gz</file>
-        <file>base_locations.txt</file>
-        <file>constellation_boundaries.dat</file>
-        <file>constellations_spans.dat</file>
-        <file>constellations_spans_old.dat</file>
-        <file>default_cfg.ini</file>
-        <file>iso3166.tab</file>
-        <file>languages.tab</file>
-        <file>nomenclature.dat</file>
-        <file>nomenclature.fab</file>
-        <file>regions-geoscheme.tab</file>
-        <file>splash-gray.png</file>
-        <file>splash.bmp</file>
-        <file>splash.png</file>
-        <file>ssystem_1000comets.ini</file>
-        <file>ssystem_major.ini</file>
-        <file>ssystem_minor.ini</file>
-        <file>stellarium.xml</file>
-    </qresource>
 </RCC>
