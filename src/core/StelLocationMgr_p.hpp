@@ -89,7 +89,11 @@ public:
 	virtual bool isReady() Q_DECL_OVERRIDE
 	{
 		//if (nmea) qDebug() << "NMEALookupHelper::isReady(): Last Error was:" << nmea->error();
+        #ifndef Q_OS_ANDROID
 		return nmea && nmea->device();
+        #else
+        return nmea;
+        #endif
 	}
 public slots:
 	virtual void query() Q_DECL_OVERRIDE;
@@ -102,7 +106,12 @@ private slots:
 	#endif
 private:
 	QSerialPort* serial;
+    #ifndef Q_OS_ANDROID
 	QNmeaPositionInfoSource* nmea;
+    #else
+    // No need to go through QIODevice to get GPS on an Android phone
+    QGeoPositionInfoSource* nmea;
+    #endif
 };
 
 #endif //ENABLE_GPS

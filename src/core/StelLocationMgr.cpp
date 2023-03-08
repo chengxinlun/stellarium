@@ -230,6 +230,7 @@ void LibGPSLookupHelper::query()
 NMEALookupHelper::NMEALookupHelper(QObject *parent)
 	: GPSLookupHelper(parent), serial(Q_NULLPTR), nmea(Q_NULLPTR)
 {
+    #ifndef Q_OS_ANDROID
 	//use RAII
 	// Getting a list of ports may enable auto-detection!
 	QList<QSerialPortInfo> portInfoList=QSerialPortInfo::availablePorts();
@@ -311,6 +312,20 @@ NMEALookupHelper::NMEALookupHelper(QObject *parent)
 	}
 	else qWarning() << "Cannot open serial port to NMEA device at port " << serial->portName();
 	// This may leave an un-ready object. Must be cleaned-up later.
+    #else
+    nmea = QGeoPositionInfoSource::createDefaultSource(this);
+    serial = Q_NULLPTR;
+    if (nmea) {
+            connect(nmea, SIGNAL(positionUpdated(const QGeoPositionInfo)),this,SLOT(nmeaUpdated(const QGeoPositionInfo)));
+            #if (QT_VERSION>=QT_VERSION_CHECK(6,0,0))
+            connect(nmea, SIGNAL(errorOccurred(QGeoPositionInfoSource::Error)), this, SLOT(nmeaError(QGeoPositionInfoSource::Error)));
+            #else
+            connect(nmea, SIGNAL(error(QGeoPositionInfoSource::Error)), this, SLOT(nmeaError(QGeoPositionInfoSource::Error)));
+            connect(nmea, SIGNAL(updateTimeout()),this,SLOT(nmeaTimeout()));
+            #endif
+            nmea->setUpdateInterval(1000);
+        }
+    #endif
 }
 NMEALookupHelper::~NMEALookupHelper()
 {
