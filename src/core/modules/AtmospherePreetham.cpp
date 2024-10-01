@@ -85,7 +85,7 @@ AtmospherePreetham::AtmospherePreetham(Skylight& sky)
 	atmoShaderProgram->addShader(&fShader);
 	StelPainter::linkProg(atmoShaderProgram, "Preetham atmosphere");
 
-	GL(atmoShaderProgram->bind());
+   GL(atmoShaderProgram->bind());
 	GL(shaderAttribLocations.ditherPattern = atmoShaderProgram->uniformLocation("ditherPattern"));
 	GL(shaderAttribLocations.rgbMaxValue = atmoShaderProgram->uniformLocation("rgbMaxValue"));
 	GL(shaderAttribLocations.alphaWaOverAlphaDa = atmoShaderProgram->uniformLocation("alphaWaOverAlphaDa"));

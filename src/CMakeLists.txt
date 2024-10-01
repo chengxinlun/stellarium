@@ -524,16 +524,16 @@ ENDIF()
 
 # Main executable/library setup
 IF (ANDROID)
-    # Change if necessary
-    SET(OPENSSL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../android_openssl/latest/arm64)
-    ADD_LIBRARY(stelMain SHARED ${stellarium_lib_SRCS} ${stellarium_RES_CXX})
+    qt_add_library(stelMain SHARED ${stellarium_lib_SRCS} ${stellarium_RES_CXX})
     TARGET_LINK_LIBRARIES(stelMain ${STELMAIN_DEPS})
-    qt_add_executable(stellarium MANUAL_FINALIZATION ${stellarium_exe_SRCS})
-    TARGET_LINK_LIBRARIES(stellarium PRIVATE stelMain ${winMMLib})
+    INSTALL(TARGETS stelMain DESTINATION lib)
+    qt_add_executable(stellarium ${stellarium_exe_SRCS})
+    TARGET_LINK_LIBRARIES(stellarium PRIVATE stelMain)
+    set_target_properties(stellarium PROPERTIES QT_ANDROID_VERSION_NAME ${STELLARIUM_BUIDING_VERSION})
+    set_target_properties(stellarium PROPERTIES QT_ANDROID_TARGET_SDK_VERSION 30) # Android 11
+    set_target_properties(stellarium PROPERTIES QT_ANDROID_MIN_SDK_VERSION 23) # Android 6
     SET_PROPERTY(TARGET stellarium APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
-    SET_PROPERTY(TARGET stellarium PROPERTY QT_ANDROID_EXTRA_LIBS
-        ${OPENSSL_DIR}/libcrypto_1_1.so
-        ${OPENSSL_DIR}/libssl_1_1.so)
+    add_android_openssl_libraries(stellarium)
 ELSE()
     IF(GENERATE_STELMAINLIB)
         ADD_LIBRARY(stelMain SHARED ${stellarium_lib_SRCS} ${stellarium_RES_CXX})

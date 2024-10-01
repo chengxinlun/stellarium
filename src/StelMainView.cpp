@@ -61,8 +61,9 @@
 #include <QWindow>
 #include <QMessageBox>
 #include <QStandardPaths>
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 	#include <QPinchGesture>
+    #include <Qt>
 #endif
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
@@ -368,9 +369,9 @@ public:
 
 		setAcceptHoverEvents(true);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 		setAcceptTouchEvents(true);
-		grabGesture(Qt::PinchGesture);
+      grabGesture(Qt::PinchGesture);
 #endif
 		setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
 		previousPaintTime = StelApp::getTotalRunTime();
@@ -485,28 +486,43 @@ protected:
 	}
 
 	//*** Gesture and touch support, currently only for Windows
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 	bool event(QEvent * e) Q_DECL_OVERRIDE
 	{
 		bool r = false;
-		switch (e->type()){
-			case QEvent::TouchBegin:
-			case QEvent::TouchUpdate:
-			case QEvent::TouchEnd:
-			{
-				QTouchEvent *touchEvent = static_cast<QTouchEvent *>(e);
-				QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+      switch (e->type())
+      {
+         // Low level gesture recognition and zoom calculation
+         case QEvent::TouchBegin:
+         case QEvent::TouchUpdate:
+         case QEvent::TouchEnd:
+         {
+            QTouchEvent *touchEvent = static_cast<QTouchEvent *>(e);
+            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
 
-				if (touchPoints.count() == 1)
-					setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
-
-				r = true;
-				break;
-			}
-			case QEvent::Gesture:
-				setAcceptedMouseButtons(Qt::NoButton);
-				r = gestureEvent(static_cast<QGestureEvent*>(e));
-				break;
+            if (touchPoints.count() == 2)
+            {
+               const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+               const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+               qreal currentScaleFactor = QLineF(touchPoint0.pos(), touchPoint1.pos()).length() / QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+               if (touchEvent->touchPointStates() & Qt::TouchPointReleased) {
+                  // if one of the fingers is released, remember the current scale
+                  // factor so that adding another finger later will continue zooming
+                  // by adding new scale factor to the existing remembered value.
+                  currentScaleFactor = 1;
+               }
+               if (currentScaleFactor < 2 && currentScaleFactor > 0.5)
+                  StelApp::getInstance().handlePinch(currentScaleFactor, true);
+               r = true;
+            }
+            break;
+         }
+         //case QEvent::Gesture:
+         //{
+            //setAcceptedMouseButtons(Qt::NoButton);
+            //r = gestureEvent(static_cast<QGestureEvent*>(e));
+            //break;
+         //}
 			default:
 				r = QGraphicsObject::event(e);
 		}
@@ -518,7 +534,6 @@ private:
 	{
 		if (QGesture *pinch = event->gesture(Qt::PinchGesture))
 			pinchTriggered(static_cast<QPinchGesture *>(pinch));
-
 		return true;
 	}
 
@@ -533,7 +548,7 @@ private:
 			}
 		}
 	}
-#endif
+#endif   
 
 private:
 	//! Helper function to convert a QGraphicsSceneMouseEvent to a QMouseEvent suitable for StelApp consumption
@@ -568,8 +583,47 @@ private:
 		QPointF pos = event->scenePos();
 		//Y needs to be inverted
 		pos.setY(rect.height() - 1 - pos.y());
-		return QMouseEvent(t,pos,event->button(),event->buttons(),event->modifiers());
+      return QMouseEvent(t,pos,event->button(),event->buttons(),event->modifiers());
 	}
+
+   QMouseEvent convertMouseEvent(QTouchEvent *event) const
+   {
+      //convert graphics scene mouse event to widget style mouse event
+      QEvent::Type t = QEvent::None;
+      Qt::MouseButton b = Qt::NoButton;
+      Qt::MouseButtons bs = Qt::NoButton;
+      switch(event->type())
+      {
+         case QEvent::TouchBegin:
+         {
+            t = QEvent::MouseButtonPress;
+            b = Qt::LeftButton;
+            bs = Qt::LeftButton;
+            break;
+         }
+         case QEvent::TouchEnd:
+         {
+            t = QEvent::MouseButtonRelease;
+            b = Qt::LeftButton;
+            break;
+         }
+         case QEvent::TouchUpdate:
+         {
+            t = QEvent::MouseMove;
+            bs = Qt::LeftButton;
+            break;
+         }
+         default:
+            //warn in release and assert in debug
+            qWarning("Unhandled mouse event type %d",event->type());
+            Q_ASSERT(false);
+      }
+
+      QPointF pos = event->touchPoints()[0].pos();
+      //Y needs to be inverted
+      pos.setY(rect.height() - 1 - pos.y());
+      return QMouseEvent(t,pos,b,bs,event->modifiers());
+   }
 
 	QRectF rect;
 	double previousPaintTime;

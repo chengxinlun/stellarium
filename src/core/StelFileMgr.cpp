@@ -27,7 +27,6 @@
 #include <QStandardPaths>
 #include <QProcessEnvironment>
 #include <QtGlobal>
-#include <QtCore/private/qandroidextras_p.h>
 
 #include <cstdio>
 
@@ -38,23 +37,39 @@
 	#include <QLibrary>
 #endif
 #endif
+#ifdef Q_OS_ANDROID
+   #include <QtCore/private/qandroidextras_p.h>
+   #include <QOperatingSystemVersion>
+#endif
 
 #include "StelFileMgr.hpp"
 
 // Initialize static members.
 QStringList StelFileMgr::fileLocations;
 QString StelFileMgr::userDir;
-QString StelFileMgr::cuserDir;
+//QString StelFileMgr::cuserDir;
 QString StelFileMgr::screenshotDir;
 QString StelFileMgr::installDir;
 
+
 void requestPermission(QString perm)
 {
-    auto r = QtAndroidPrivate::checkPermission(perm).result();
-    while (r == QtAndroidPrivate::Denied)
+   qDebug() << "Checking permission: " << perm;
+   auto r = QtAndroidPrivate::checkPermission(perm).then([](
+      QtAndroidPrivate::PermissionResult result) {
+      return result;
+   });
+   r.waitForFinished();
+    while (r.result() == QtAndroidPrivate::Denied)
     {
-        r = QtAndroidPrivate::requestPermission(perm).result();
+      qDebug() << "Requesting permission: " << perm;
+      auto r = QtAndroidPrivate::requestPermission(perm).then([](
+         QtAndroidPrivate::PermissionResult result) {
+         return result;
+      });
+       r.waitForFinished();
     }
+    qDebug() << "Permission granted: " << perm;
     return;
 }
 
@@ -74,11 +89,38 @@ void StelFileMgr::init()
 	// Use system settings dir
 	userDir = QDir::homePath() + "/config/settings/Stellarium";
 #elif defined(Q_OS_ANDROID)
-    requestPermission("android.permission.READ_EXTERNAL_STORAGE");
-    requestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
-    userDir = QDir::homePath() + "/.stellarium";
-    // Custom user dir where the user can write to
-    cuserDir = QString::fromLocal8Bit(qgetenv("EXTERNAL_STORAGE")) + "/stellarium";
+   requestPermission("android.permission.READ_EXTERNAL_STORAGE");
+   requestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+
+   if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 11)) {
+      qDebug() << "it is less then Android 11 - ALL FILES permission isn't possible!";
+   }
+   // Here you have to set your PackageName
+   #define PACKAGE_NAME "package:org.qtproject.stellarium"
+   jboolean value = QJniObject::callStaticMethod<jboolean>("android/os/Environment", "isExternalStorageManager");
+   if(value == false) {
+      qDebug() << "requesting ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION";
+      QJniObject ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION = QJniObject::getStaticObjectField( "android/provider/Settings", "ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION","Ljava/lang/String;" );
+      QJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION.object());
+      QJniObject jniPath = QJniObject::fromString(PACKAGE_NAME);
+      QJniObject jniUri = QJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jniPath.object<jstring>());
+      QJniObject jniResult = intent.callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;", jniUri.object<jobject>() );
+      QtAndroidPrivate::startActivity(intent, 0);
+   } else {
+      qDebug() << "SUCCESS ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION";
+   }
+
+
+   // Custom user dir where the user can write to
+   userDir = QString::fromLocal8Bit(qgetenv("EXTERNAL_STORAGE")) + "/stellarium";
+   try
+   {
+      makeSureDirExistsAndIsWritable(userDir);
+   }
+   catch (std::runtime_error &e)
+   {
+      userDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/.stellarium";
+   }
 #else
     userDir = QDir::homePath() + "/.stellarium";
 #endif
@@ -96,6 +138,26 @@ void StelFileMgr::init()
 	}
 #endif
 
+   /*
+   // Add custom user config dir for android users
+#ifdef Q_OS_ANDROID
+   if (!QFile(cuserDir).exists())
+   {
+      qWarning() << "Custom user config directory does not exist: " << QDir::toNativeSeparators(cuserDir);
+   }
+   try
+   {
+      makeSureDirExistsAndIsWritable(cuserDir);
+   }
+   catch (std::runtime_error &e)
+   {
+      qWarning("Error: cannot create custom user config directory: %s", e.what());
+   }
+   fileLocations.append(cuserDir);
+   qDebug() << "Custom user config directory: " << cuserDir;
+#endif
+*/
+
 	if (!QFile(userDir).exists())
 	{
 		qWarning() << "User config directory does not exist: " << QDir::toNativeSeparators(userDir);
@@ -112,23 +174,7 @@ void StelFileMgr::init()
 	// OK, now we have the userDir set, add it to the search path
 	fileLocations.append(userDir);
 
-    // Add custom user config dir for android users
-#ifdef Q_OS_ANDROID
-    if (!QFile(cuserDir).exists())
-    {
-        qWarning() << "Custom user config directory does not exist: " << QDir::toNativeSeparators(cuserDir);
-    }
-    try
-    {
-        makeSureDirExistsAndIsWritable(cuserDir);
-    }
-    catch (std::runtime_error &e)
-    {
-        qWarning("Error: cannot create custom user config directory: %s", e.what());
-    }
-    fileLocations.append(cuserDir);
-    qDebug() << "Custom user config directory: " << cuserDir;
-#endif
+
 	
 	// Determine install data directory location
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();

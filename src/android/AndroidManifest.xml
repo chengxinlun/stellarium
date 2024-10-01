@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.qtproject.Stellarium" android:installLocation="auto" android:versionCode="1" android:versionName="Testing">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.qtproject.stellarium" android:installLocation="auto" android:versionCode="-- %%INSERT_VERSION_CODE%% --" android:versionName="-- %%INSERT_VERSION_NAME%% --">
     <!-- %%INSERT_PERMISSIONS -->
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
     <!-- %%INSERT_FEATURES -->
     <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true"/>
     <application android:name="org.qtproject.qt.android.bindings.QtApplication" android:extractNativeLibs="true" android:hardwareAccelerated="true" android:label="Stellarium" android:requestLegacyExternalStorage="true" android:allowNativeHeapPointerTagging="false">
@@ -11,13 +12,7 @@
             </intent-filter>
             <meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
             <meta-data android:name="android.app.arguments" android:value="-- %%INSERT_APP_ARGUMENTS%% --"/>
-            <meta-data android:name="android.app.extract_android_style" android:value="full"/>
+            <meta-data android:name="android.app.extract_android_style" android:value="minimal"/>
         </activity>
     </application>
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>

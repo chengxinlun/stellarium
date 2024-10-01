@@ -2940,6 +2940,7 @@ Vec3d StelCore::getMouseJ2000Pos() const
 	float ppx = static_cast<float>(getCurrentStelProjectorParams().devicePixelsPerPixel);
 
 	QPoint p = StelMainView::getInstance().getMousePos(); // get screen coordinates of mouse cursor
+   qDebug() << p;
 	Vec3d mousePosition;
 	const float wh = prj->getViewportWidth()*0.5f; // get half of width of the screen
 	const float hh = prj->getViewportHeight()*0.5f; // get half of height of the screen

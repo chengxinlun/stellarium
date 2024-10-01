@@ -33,8 +33,6 @@ ENDIF()
 #    FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core)
 #ENDIF()
 
-#qt_add_executable(StellariumAndroid main.cpp)
-
 # Activate this to error on all things deprecated in 5.15
 #add_compile_definitions("QT_DISABLE_DEPRECATED_BEFORE=0x050F00")
 
@@ -543,7 +541,6 @@ ADD_PLUGIN(Supernovae 1)
 ADD_PLUGIN(TextUserInterface 1)
 ADD_PLUGIN(TelescopeControl 1)
 ADD_PLUGIN(Vts 0)
-
 ########## Static plugins need to define includes and libraries
 ########## for the compilation of Stellarium itself
 
@@ -567,7 +564,7 @@ ELSE()
      MESSAGE(STATUS "Found Qt${QT_VERSION_MAJOR}: ${QMAKE_LOCATION} (found suitable version ${QT_VERSION})")
 ENDIF()
 FIND_PACKAGE(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
-     Concurrent Gui Network Widgets Charts)
+     Concurrent Gui Network Widgets Charts OpenGL)
 IF(USE_PLUGIN_TELESCOPECONTROL OR ENABLE_GPS)
      FIND_PACKAGE(Qt${QT_VERSION_MAJOR} COMPONENTS SerialPort REQUIRED)
 ENDIF()
@@ -623,7 +620,9 @@ IF(WIN32)
           ENDIF()
     ENDIF()
 ENDIF()
-
+if (ANDROID)
+    include(../android_openssl/android_openssl.cmake)
+endif()
 IF(APPLE)
      IF(${QT_VERSION_MAJOR} EQUAL 6)
 	  FIND_PACKAGE(Qt${QT_VERSION_MAJOR} COMPONENTS DBus REQUIRED)
@@ -1066,5 +1065,6 @@ IF(ENABLE_NLS)
      ADD_SUBDIRECTORY( po )
 ENDIF()
 IF(ANDROID)
+    qt_finalize_target(stelMain)
     qt_finalize_target(stellarium)
 ENDIF()

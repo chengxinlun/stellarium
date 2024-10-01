@@ -203,6 +203,10 @@ Q_IMPORT_PLUGIN(RemoteSyncStelPluginInterface)
 Q_IMPORT_PLUGIN(VtsStelPluginInterface)
 #endif
 
+#ifdef USE_STATIC_ZOOMBUTTON
+Q_IMPORT_PLUGIN(ZoomButtonStelPluginInterface)
+#endif
+
 #ifdef USE_STATIC_PLUGIN_ONLINEQUERIES
 Q_IMPORT_PLUGIN(OnlineQueriesPluginInterface)
 #endif
@@ -874,9 +878,9 @@ void StelApp::handleClick(QMouseEvent* inputEvent)
 	y = pos.y();
 	if (viewportEffect)
 		viewportEffect->distortXY(x, y);
-
-	QMouseEvent event(inputEvent->type(), QPoint(qRound(x*devicePixelsPerPixel), qRound(y*devicePixelsPerPixel)), inputEvent->button(), inputEvent->buttons(), inputEvent->modifiers());
-	event.setAccepted(false);
+   QPointF pos_device = QPoint(qRound(x*devicePixelsPerPixel), qRound(y*devicePixelsPerPixel));
+   QMouseEvent event(inputEvent->type(), pos_device, inputEvent->button(), inputEvent->buttons(), inputEvent->modifiers());
+   event.setAccepted(false);
 	
 	// Send the event to every StelModule
 	for (auto* i : moduleMgr->getCallOrders(StelModule::ActionHandleMouseClicks))
